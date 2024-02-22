@@ -1,0 +1,41 @@
+/* Register.css */
+
+.Register {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #f3f2f2;
+  width: 600px;
+  margin: 15px auto;
+  padding: 10px;
+  border-radius: 8px;
+}
+
+.Register h1 {
+  text-align: center;
+}
+
+.Register .form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 12px;
+}
+
+.Register .form img {
+  cursor: pointer;
+}
+
+.Register .form input[type="text"] {
+  padding: 10px;
+  width: 85%;
+  border: 1px solid #eee;
+  border-radius: 6px;
+  margin-bottom: 10px;
+}
+
+.form label[type="label"]{
+  padding:10px;
+}
+

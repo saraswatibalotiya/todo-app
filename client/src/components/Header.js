@@ -14,7 +14,7 @@ import Button from "@mui/material/Button";
 import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
 import AdbIcon from "@mui/icons-material/Adb";
-import { deepOrange, purple, green, amber } from "@mui/material/colors";
+import {purple } from "@mui/material/colors";
 
 import { useParams, useNavigate } from "react-router-dom"; // Import useHistory from react-router-dom
 

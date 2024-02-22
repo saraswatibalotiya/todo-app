@@ -3,10 +3,8 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Alerts from "./Alerts";
 import {
-  TextField,
   Button,
   Box,
-  Grid,
   Select,
   MenuItem,
   InputLabel,
@@ -17,19 +15,13 @@ const AddItems = ({
   setSelectStatus,
   getItemsList,
   sessionData,
-  itemsPerPage,
-  currPage,
-  setTotalPages,
-  setListItems,
-  setOpenSearch,
-  openSearch,
   updateData,
   setUpdateData,
   setTodoUpdate
 }) => {
   //url
   const url = "http://localhost:5500/api/item";
-  const catUrl = "http://localhost:5500/api/category";
+  const catUrl = "http://localhost:5500/api/category/all";
 
   //Alert
   const [showAlert, setShowAlert] = useState(false);
@@ -110,7 +102,6 @@ const AddItems = ({
   };
 
   //Get Category
-
   const getCategory = async () => {
     const res = await axios.get(`${catUrl}`);
     setCategoryList(res.data);

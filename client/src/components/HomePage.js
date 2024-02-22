@@ -95,6 +95,7 @@ function HomePage() {
     handleCloseDialog();
   };
 
+  //Change current page
   useEffect(() => {
     setCurrPage(Math.min(currPage, totalPages));
   }, [totalPages, openSearch]);
@@ -171,7 +172,7 @@ function HomePage() {
       }
       // e.preventDefault();
       const res = await axios.get(
-        `http://localhost:5500/api/item/bookmarkItem?totalItem=${itemsPerPage}&page=${currPage}&userid=${sessionData.id}`
+        `${url}/bookmarkItem?totalItem=${itemsPerPage}&page=${currPage}&userid=${sessionData.id}`
       );
       console.log(res.data.length);
       if (res.data.length > 1) {
@@ -215,16 +216,7 @@ function HomePage() {
       console.log(err);
     }
   };
-  //Handle logout
-  const handleLogout = async (e) => {
-    sessionStorage.removeItem(sessionId);
-    setSessionData(null);
-    navigate("/login");
-  };
-  //Handle Category
-  const handleCategory = async (e) => {
-    navigate(`/categorys/${sessionId}`);
-  };
+
   //Chagne status usestate on click
   const checkStatus = async (e) => {
     e.preventDefault();
@@ -241,7 +233,6 @@ function HomePage() {
     <>
     <Header />
     <div className="App">
-
       <Grid container spacing={2} alignItems={"center"}>
         <Grid item alignItems={"center"} md={6} sx={{ borderRight: 1 }}>
           <h1>Todoer</h1>
@@ -251,12 +242,6 @@ function HomePage() {
             getItemsList={getItemsList}
             setSelectStatus={setSelectStatus}
             sessionData={sessionData}
-            itemsPerPage={itemsPerPage}
-            currPage={currPage}
-            setTotalPages={setTotalPages}
-            setListItems={setListItems}
-            setOpenSearch={setOpenSearch}
-            openSearch={openSearch}
             updateData={updateData}
             setUpdateData = {setUpdateData}
             setTodoUpdate = {setTodoUpdate}
@@ -265,7 +250,6 @@ function HomePage() {
         <Grid item alignItems={"center"} md={6}>
         <SearchItem 
                     sessionData={sessionData}
-
                       setSelectStatus={setSelectStatus}
                       setOpenSearch={setOpenSearch}
                       itemsPerPage={itemsPerPage}

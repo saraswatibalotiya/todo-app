@@ -4,7 +4,15 @@ import { useParams } from "react-router-dom";
 import axios from "axios";
 import AddCategory from "./AddCategory";
 import CustomDialog from "./CustomDialog";
-import { Button, Grid } from "@mui/material";
+import {
+  Grid,
+  FormControl,
+  Pagination,
+  Box,
+  InputLabel,
+  Select,
+  MenuItem,
+} from "@mui/material";
 import { useNavigate } from "react-router-dom"; // Import useHistory from react-router-dom
 import Header from "./Header";
 const Categorys = () => {
@@ -15,6 +23,11 @@ const Categorys = () => {
   const { sessionId } = useParams();
   const navigate = useNavigate();
 
+  //Pagination
+  const [currPage, setCurrPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(3);
+
   //add item in list
   const [listCategory, setListCategory] = useState([]);
 
@@ -22,7 +35,7 @@ const Categorys = () => {
   const [openDialog, setOpenDialog] = useState(false); // State to control dialog visibility
   const [itemToDelete, setItemToDelete] = useState(null);
   const [delItem, setDelItem] = useState("");
-  const [updateItem,setUpdateItem] = useState([])
+  const [updateItem, setUpdateItem] = useState([]);
 
   //Handle Category
   const todo = async (e) => {
@@ -33,7 +46,16 @@ const Categorys = () => {
   const getCategoryList = async () => {
     try {
       let res;
-      res = await axios.get(`${url}`);
+      console.log(itemsPerPage, currPage);
+      res = await axios.get(
+        `${url}?totalItem=${itemsPerPage}&page=${currPage}`
+      );
+      const items = res.data.shift();
+      //Calculate total pages based on the total number of items
+      if (items.COUNT > 0) {
+        const totCnt = Math.ceil(items.COUNT / itemsPerPage);
+        setTotalPages(totCnt);
+      }
       setListCategory(res.data);
     } catch (err) {
       console.log(err);
@@ -81,30 +103,30 @@ const Categorys = () => {
     }
   };
 
-
   //Update ctegory when click on update
   const updateCategory = async (item, e) => {
-    setUpdateItem(
-      {
-        cat_id : item.id,
-        category_name : item.category_name,
-        display_name : item.display_name
-      }
-    )
-
-  }
+    setUpdateItem({
+      cat_id: item.id,
+      category_name: item.category_name,
+      display_name: item.display_name,
+    });
+  };
 
   useEffect(() => {
     getCategoryList();
-  }, []);
+    setCurrPage(Math.min(currPage, totalPages));
+  }, [totalPages, itemsPerPage, currPage]);
 
   return (
     <>
-    <Header />
-
+      <Header />
       <div className="Register">
-      <h3>Category Master</h3>
-        <AddCategory getCategoryList={getCategoryList} updateItem = {updateItem} setUpdateItem = {setUpdateItem}></AddCategory>
+        <h3>Category Master</h3>
+        <AddCategory
+          getCategoryList={getCategoryList}
+          updateItem={updateItem}
+          setUpdateItem={setUpdateItem}
+        ></AddCategory>
         <Grid container spacing={2} alignItems={"center"}>
           <Grid item alignItems={"center"} md={4.5}>
             <h3>Category Name</h3>
@@ -116,53 +138,95 @@ const Categorys = () => {
             <h3>Action</h3>
           </Grid>
         </Grid>
-        
+
         {listCategory.map((item) => (
           <Grid container spacing={2} alignItems={"center"}>
-          <Grid item  md={4}>
-             <p className="item-content">{item.category_name}</p>
+            <Grid item md={4}>
+              <p className="item-content">{item.category_name}</p>
+            </Grid>
+            <Grid item alignItems={"center"} md={4}>
+              <p className="item-content">{item.display_name}</p>
+            </Grid>
+            <Grid item alignItems={"center"} md={1}>
+              <img
+                className="update-item"
+                onClick={(e) => {
+                  updateCategory(item, e);
+                }}
+                width="30"
+                height="30"
+                src="https://img.icons8.com/ios/50/edit--v1.png"
+                alt="edit--v1"
+              />
+            </Grid>
+            <Grid item alignItems={"center"} md={1}>
+              <img
+                className="delete-item"
+                onClick={(e) => {
+                  deleteCategory(item.id, item.category_name, e);
+                }}
+                width="50"
+                height="50"
+                src="https://img.icons8.com/carbon-copy/100/filled-trash.png"
+                alt="filled-trash"
+              />
+            </Grid>
           </Grid>
-          <Grid item alignItems={"center"} md={4}>
-             <p className="item-content">{item.display_name}</p>
-          </Grid>
-          <Grid item alignItems={"center"} md={1}>
-          <img
-              className="update-item"
-              onClick={(e) => {
-                updateCategory(item, e);
-              }}
-              width="30"
-              height="30"
-              src="https://img.icons8.com/ios/50/edit--v1.png"
-              alt="edit--v1"
-            />
-          </Grid>
-          <Grid item alignItems={"center"} md={1}>
-            <img
-              className="delete-item"
-              onClick={(e) => {
-                deleteCategory(item.id, item.category_name, e);
-              }}
-              width="50"
-              height="50"
-              src="https://img.icons8.com/carbon-copy/100/filled-trash.png"
-              alt="filled-trash"
-            />
-          </Grid>
-        </Grid>
         ))}
-        
-        <CustomDialog
-        open={openDialog}
-        handleClose={handleCloseDialog}
-        handleCancel={handleCancelDialog}
-        handleDelete={confirmDeleteCategory}
-        itemName={delItem}
-        actionName={"Category"}
-      />
-      </div>
-      </>
 
+        {/* Pagination */}
+        <FormControl fullWidth>
+          <Grid container spacing={2} alignItems={"center"}>
+            <Grid item alignItems={"center"} md={7}>
+              {/* Pagination */}
+              <Pagination
+                defaultPage={1}
+                count={totalPages}
+                page={currPage}
+                onChange={(event, value) => {
+                  setCurrPage(value);
+                  console.log("kiiya change" + value);
+                }}
+                color="secondary"
+                variant="outlined"
+              />
+            </Grid>
+            <Grid item md={2} alignItems={"center"}>
+              <Box sx={{ minWidth: 150 }}>
+                <FormControl fullWidth>
+                  <InputLabel id="demo-simple-select-label">
+                    Records Per Page
+                  </InputLabel>
+                  <Select
+                    labelId="demo-simple-select-label"
+                    id="demo-simple-select"
+                    label="records"
+                    value={itemsPerPage}
+                    onChange={(event) => {
+                      setItemsPerPage(event.target.value);
+                    }}
+                  >
+                    <MenuItem value={3}>Three</MenuItem>
+                    <MenuItem value={5}>Five</MenuItem>
+                    <MenuItem value={8}>Eight</MenuItem>
+                    <MenuItem value={10}>Ten</MenuItem>
+                  </Select>
+                </FormControl>
+              </Box>
+            </Grid>
+          </Grid>
+        </FormControl>
+
+        <CustomDialog
+          open={openDialog}
+          handleClose={handleCloseDialog}
+          handleCancel={handleCancelDialog}
+          handleDelete={confirmDeleteCategory}
+          itemName={delItem}
+          actionName={"Category"}
+        />
+      </div>
+    </>
   );
 };
 

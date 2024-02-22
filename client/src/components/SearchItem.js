@@ -1,13 +1,8 @@
-import Alerts from "./Alerts";
-import React, {  useState } from "react";
+import React, { useState } from "react";
 import axios from "axios";
-
-
-
-const SearchItem = ({ 
-
-    setSelectStatus,
-  getItemsList,
+import Alerts from "./Alerts";
+const SearchItem = ({
+  setSelectStatus,
   sessionData,
   itemsPerPage,
   currPage,
@@ -15,24 +10,25 @@ const SearchItem = ({
   setListItems,
   setOpenSearch,
   openSearch,
-  updateData,
-  setUpdateData,
 }) => {
-    console.log(sessionData)
-    // url
-    const url = "http://localhost:5500/api/item";
-      //Alert
+  console.log(sessionData);
+  // url
+  const url = "http://localhost:5500/api/item";
+  //Alert
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [alertSeverity, setAlertSeverity] = useState("");
 
+  //Close the alert
+  const handleClose = () => {
+    setShowAlert(false);
+    setAlertMessage("");
+    setAlertSeverity("");
+  };
 
   //Search Item
   const searchItem = async (e) => {
     try {
-    //   if (sessionData == null) {
-    //     return;
-    //   }
       e.preventDefault();
       const searchValue = e.target.search.value;
       if (searchValue === "") {
@@ -59,8 +55,9 @@ const SearchItem = ({
         setAlertMessage("No such item in TODO List");
         setAlertSeverity("warning");
         setSelectStatus("All");
-        setOpenSearch("");
         setShowAlert(true);
+        e.target.search.value = ""
+        setOpenSearch("");
         return;
       }
     } catch (error) {
@@ -93,6 +90,15 @@ const SearchItem = ({
           alt="search--v1"
         />
       </button>
+      {showAlert && (
+        <Alerts
+          message={alertMessage}
+          severitys={alertSeverity}
+          onClose={() => {
+            handleClose();
+          }}
+        />
+      )}
     </form>
   );
 };

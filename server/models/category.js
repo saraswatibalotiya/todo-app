@@ -10,7 +10,7 @@ const conn = mysql.createConnection({
     database: 'toDoApp',
 })
 
-// Add User in User table
+// Add Category in Category table
 const addCategory = async (category) => {
     try {
         await conn.promise().query(
@@ -51,19 +51,27 @@ const addCategory = async (category) => {
     }
 }
 
-// Get User in User Table
-const getCategoryById = async(category_id) => {
+// Get Category in Category Table By ID
+const getCategoryById = async(totalItem, page ,category_id) => {
     try {
-        const [rows] = await conn.promise().query('SELECT * FROM category WHERE id = ?',[category_id]);
-        console.log(rows.length);
-        console.log("iske rows");
+        const offset = (page - 1) * totalItem; // Calculate the offset based on the page
+        const sql = `SELECT * FROM category where id = ? LIMIT ${totalItem} OFFSET ${offset} `;
+        const [rows] = await conn.promise().query(sql,[category_id]);
+        const [rows2] = await conn.promise().query(`SELECT COUNT(*) AS COUNT FROM category where id = ?`,[category_id]);
+        console.log(rows2[0], "total count");
+        const result = [rows2[0], ...rows];
+        return result;
 
-        if(rows.length>0){
-            return rows;
-        }
-        else{
-            return 'No such category';
-        }
+        // const [rows] = await conn.promise().query('SELECT * FROM category WHERE id = ?',[category_id]);
+        // console.log(rows.length);
+        // console.log("iske rows");
+
+        // if(rows.length>0){
+        //     return rows;
+        // }
+        // else{
+        //     return 'No such category';
+        // }
     }
     catch (error) {
         console.log(error);
@@ -71,8 +79,28 @@ const getCategoryById = async(category_id) => {
     }
 }
 
-// Get User in User Table
-const getCategory= async() => {
+// Get Category in Category Table
+const getCategory= async(totalItem, page) => {
+    try {
+        console.log(totalItem,page);
+        const offset = (page - 1) * totalItem; // Calculate the offset based on the page
+        const sql = `SELECT * FROM category  LIMIT ${totalItem} OFFSET ${offset} `;
+        const [rows] = await conn.promise().query(sql);
+        const [rows2] = await conn.promise().query(`SELECT COUNT(*) AS COUNT FROM category`);
+        const result = [rows2[0], ...rows];
+        console.log(result);
+        return result;
+        // const [rows] = await conn.promise().query('SELECT * FROM category');
+        // return rows;
+    }
+    catch (error) {
+        console.log(error);
+        throw error;
+    }
+}
+
+//Get Categoy without pagination
+const getCategoryNoPagination = async()=>{
     try {
         const [rows] = await conn.promise().query('SELECT * FROM category');
         return rows;
@@ -83,7 +111,7 @@ const getCategory= async() => {
     }
 }
 
-// Delete Item of ToDo table
+// Delete Category of ToDo table
 const deleteCategory = async (id) => {
     try {
         const [result] = await conn.promise().query(
@@ -99,7 +127,7 @@ const deleteCategory = async (id) => {
     }
 }
 
-// Update Item of ToDo table
+// Update Item of Category table
 const updateCategory = async (updatedFields) => {
     try {
         const [result] = await conn.promise().query(
@@ -116,4 +144,4 @@ const updateCategory = async (updatedFields) => {
 };
 
 // Export a function to add a todo item to the MySQL database
-module.exports = { addCategory ,getCategory,deleteCategory,getCategoryById ,updateCategory} 
+module.exports = { addCategory ,getCategory,deleteCategory,getCategoryById ,updateCategory,getCategoryNoPagination} 

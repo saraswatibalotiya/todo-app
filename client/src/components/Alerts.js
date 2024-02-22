@@ -24,7 +24,6 @@ const Alerts = ({ message, severitys ,onClose}) => {
             anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
         >
             <Alert onClose={handleClose} severity={severitys}>
-                {/* <AlertTitle>{severitys === 'warning' ? 'Success' : 'Warning'}</AlertTitle> */}
                 {message}
             </Alert>
         </Snackbar>

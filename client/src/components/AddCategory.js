@@ -1,9 +1,8 @@
 import React from "react";
-import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useState } from "react";
 import axios from "axios";
 import Alerts from "./Alerts";
-import { TextField, Button, Box, Grid } from "@mui/material";
+import { Button, Box } from "@mui/material";
 
 const AddCategory = ({ getCategoryList, updateItem, setUpdateItem }) => {
   //URL
@@ -18,6 +17,7 @@ const AddCategory = ({ getCategoryList, updateItem, setUpdateItem }) => {
   const [displayText, setDisplayText] = useState("");
   const [categoryText, setCategoryText] = useState("");
 
+  //For Alert
   const handleClose = () => {
     setShowAlert(false);
     setAlertMessage("");
@@ -29,6 +29,7 @@ const AddCategory = ({ getCategoryList, updateItem, setUpdateItem }) => {
     setDisplayText("");
   };
 
+  //Update category of items
   const updateCategory = async (e) => {
     e.preventDefault();
     const res = await axios.put(`${url}`, {

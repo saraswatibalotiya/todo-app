@@ -38,11 +38,12 @@ router.put('/',async(req,res)=>{
     }
 })
 
-// Get category  By id
-router.get('/:category_id',async(req,res) => {
+// Get Category 
+router.get('/',async(req,res) => {
     try{
-        const category_id = req.params.category_id;
-        const category = await categoryModel.getCategoryById(category_id);
+        const totalItem = req.query.totalItem;
+        const page = req.query.page;
+        const category = await categoryModel.getCategory(totalItem,page);
         res.status(200).json(category);
     }
     catch(err){
@@ -51,10 +52,10 @@ router.get('/:category_id',async(req,res) => {
     }
 })
 
-// Get Subtask 
-router.get('/',async(req,res) => {
+//Get Category Without pagincation
+router.get('/all',async(req,res)=>{
     try{
-        const category = await categoryModel.getCategory();
+        const category = await categoryModel.getCategoryNoPagination();
         res.status(200).json(category);
     }
     catch(err){

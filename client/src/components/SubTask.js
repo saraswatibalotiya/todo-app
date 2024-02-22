@@ -2,16 +2,9 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Alerts from "./Alerts";
 import {
-  Button,
   Dialog,
   DialogActions,
   DialogContent,
-  DialogContentText,
-  Box,
-  Select,
-  MenuItem,
-  InputLabel,
-  FormControl,
   DialogTitle,
   IconButton,
 } from "@mui/material";
@@ -257,9 +250,6 @@ const SubTask = ({
               </div>
             ))
           )}
-          {/* <DialogContentText> 
-            
-          </DialogContentText> */}
         </DialogContent>
         <DialogActions>
           <IconButton
@@ -278,9 +268,6 @@ const SubTask = ({
             <CloseIcon />
           </IconButton>
 
-          {/* <Button color="secondary" onClick={handleCancel}>
-            Cancel
-          </Button> */}
         </DialogActions>
       </Dialog>
       {/* Render your custom Dialog component for Delete Operation */}

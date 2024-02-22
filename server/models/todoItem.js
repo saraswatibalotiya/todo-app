@@ -117,6 +117,7 @@ const findTodoItem = async (title, totalItem, page ,userid) => {
         const [rows] = await conn.promise().query(sql,[`%${title}%` , userid]);
         const [rows2] = await conn.promise().query(`SELECT COUNT(*) AS COUNT FROM TodoItem WHERE title LIKE ? AND user_id = ? `,[`%${title}%` , userid]);
         const result = [rows2[0], ...rows];
+        console.log(result)
         return result;
     }
     catch (error) {

@@ -10,7 +10,7 @@ const CustomDialog = ({ open, handleClose ,handleCancel ,handleDelete , itemName
             <DialogTitle>Delete Todo</DialogTitle>
             <DialogContent>
                 <DialogContentText>
-                    You are about to delete <strong>{itemName}</strong>.If you proceed this action the Todoer will permanently delete the <i>{actionName} </i>and recovery is not possible.
+                    You are about to delete <strong>{itemName}</strong>.If you proceed this action the Todoer will permanently delete the <i>{actionName || 'TODO'} </i>and recovery is not possible.
                 </DialogContentText>
             </DialogContent>
             <DialogActions>

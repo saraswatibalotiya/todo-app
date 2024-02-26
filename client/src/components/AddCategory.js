@@ -31,17 +31,30 @@ const AddCategory = ({ getCategoryList, updateItem, setUpdateItem }) => {
 
   //Update category of items
   const updateCategory = async (e) => {
-    e.preventDefault();
-    const res = await axios.put(`${url}`, {
-      category_name: updateItem.category_name,
-      display_name: updateItem.display_name,
-      cat_id: updateItem.cat_id,
-    });
-    setUpdateItem([]);
-    setAlertMessage(res.data.message);
-    setAlertSeverity("success");
-    setShowAlert(true);
-    getCategoryList();
+    try{
+      e.preventDefault();
+      const res = await axios.put(`${url}`, {
+        category_name: updateItem.category_name,
+        display_name: updateItem.display_name,
+        cat_id: updateItem.cat_id,
+      });
+      setUpdateItem([]);
+      setAlertMessage(res.data.message);
+      setAlertSeverity("success");
+      setShowAlert(true);
+      getCategoryList();
+    }
+    catch(error){
+      if (error.response && error.response.status === 500) {
+        // Handle 500 Internal Server Error
+        setAlertMessage(error.response.data.error);
+      } else {
+        setAlertMessage("An error occurred");
+      }
+      setAlertSeverity("error");
+      setShowAlert(true);  
+    }
+    
   };
   //add new todo item to database
   const addCategory = async (e) => {
@@ -64,12 +77,7 @@ const AddCategory = ({ getCategoryList, updateItem, setUpdateItem }) => {
           category_name: category,
           display_name: display,
         });
-        if (res.data === "Category exist") {
-          setAlertMessage("Category exist");
-          setAlertSeverity("warning");
-          setShowAlert(true);
-
-        }
+        console.log(res);
         setAlertMessage(res.data.message);
         setAlertSeverity("success");
         setShowAlert(true);
@@ -77,8 +85,18 @@ const AddCategory = ({ getCategoryList, updateItem, setUpdateItem }) => {
         getCategoryList();
       }
     } catch (error) {
-      console.log(error);
-      throw error;
+      emptyFields();
+      if (error.response && error.response.status === 500) {
+        // Handle 500 Internal Server Error
+        setAlertMessage(error.response.data.error);
+      }
+      else if(error.response && error.response.status === 409){
+        setAlertMessage(error.response.data.error);
+      } else {
+        setAlertMessage("An error occurred");
+      }
+      setAlertSeverity("error");
+      setShowAlert(true);  
     }
   };
   return (

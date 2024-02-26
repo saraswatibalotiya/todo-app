@@ -37,14 +37,6 @@ const Login = () => {
             }
             const res = await axios.get(`http://localhost:5500/api/user?username=${username}`);
             console.log(res);
-            if (res.data === 'No such username') {
-                e.target.username.value = '';
-                e.target.password.value = '';
-                setAlertMessage('No such username');
-                setAlertSeverity('warning');
-                setShowAlert(true);
-                return;
-            }
             const hashPassword = res.data[0].password;
             if (bcrypt.compareSync(password, hashPassword)) {
                 // Generate a unique session ID
@@ -57,8 +49,6 @@ const Login = () => {
                 return;
 
             } else {
-                e.target.username.value = '';
-                e.target.password.value = '';
                 setAlertMessage('Invalid Password');
                 setAlertSeverity('warning');
                 setShowAlert(true);
@@ -66,9 +56,20 @@ const Login = () => {
             }
 
         } catch (error) {
-            console.log(error);
-            throw (error);
+            if (error.response && error.response.status === 404) {
+                // Handle 404 Not Found error
+                setAlertMessage(error.response.data.error);
+            } else if (error.response && error.response.status === 500) {
+                // Handle 500 Internal Server Error
+                setAlertMessage(error.response.data.error);
+            } else {
+                setAlertMessage('An error occurred');
+            }
+            setAlertSeverity('error');
+            setShowAlert(true);    
         }
+        e.target.username.value = '';
+        e.target.password.value = '';
     }
     return (
 
@@ -88,11 +89,11 @@ const Login = () => {
                 className='form'
             >
                 <p style={{ width: "50ch" }}>Username</p>
-                <input type='text'  placeholder="Enter Username" name='username' fullWidth />
+                <input type='text'  placeholder="Enter Username" name='username'  />
                 <p style={{ width: "50ch" }}>Password</p>
-                <input type='password'  placeholder="Enter Password" name='password' fullWidth />
+                <input type='password'  placeholder="Enter Password" name='password'  />
                 <Button type="submit" variant="contained" color="secondary">Login</Button>
-                <RouterLink to="/">Click here for Registration</RouterLink>
+                <RouterLink to="/" className='registerText'>Click here for Registration</RouterLink>
 
                 {showAlert && (
                     <Alerts message={alertMessage} severitys={alertSeverity} onClose={() => { handleClose() }} />

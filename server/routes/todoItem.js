@@ -11,7 +11,7 @@ router.post('/',async(req,res) => {
             title,descp,userid,category_id
         });
         // console.log(newTodo + 'new todo');
-        res.status(200).json({message : "ToDo Item added Successfully"});
+        res.status(201).json({message : "ToDo Item added Successfully"});
     }
     catch(err){
         console.log(err);
@@ -19,7 +19,6 @@ router.post('/',async(req,res) => {
         // res.json(err);
     }
 })
-
 
 // Find item from ToDo table according to status
 router.get('/status',async(req,res)=>{
@@ -34,7 +33,7 @@ router.get('/status',async(req,res)=>{
     }
     catch(err){
         console.log(err);
-        res.json(err);
+        res.status(500).json({ error: 'Internal Server Error' });
     }
 })
 
@@ -68,7 +67,7 @@ router.put('/:id',async(req,res)=>{
     }
     catch(err){
         console.log(err);
-        res.json(err);
+        res.status(500).json({ error: 'Internal Server Error' });
     }
 })
 
@@ -76,14 +75,13 @@ router.put('/:id',async(req,res)=>{
 router.delete('/:id',async(req,res)=>{
     try{
         const id = req.params.id;
-
         const deleteItem = await todoItemsModel.deleteTodoItem(id);
-        res.status(200).json("Item deleted successfully!");
+        res.status(200).json({message:"Item deleted successfully!"});
 
     }
     catch (err){
         console.log(err);
-        res.json(err);
+        res.status(500).json({ error: 'Internal Server Error' });
     }
 })
 
@@ -100,7 +98,7 @@ router.get('/:title',async(req,res)=>{
     }
     catch(err){
         console.log(err);
-        res.json(err);
+        res.status(500).json({ error: 'Internal Server Error' });
     }
 })
 
@@ -120,11 +118,11 @@ router.put('/bookmark/:id',async(req,res)=>{
 })
 
 //Get Bookmark Data from Todo Table
-router.get('/bookmarkItem',async(req,res)=>{
+router.get('/bookmark/:userid',async(req,res)=>{
     try{
         const totalItem = req.query.totalItem;
         const page = req.query.page;
-        const userid = req.query.userid;
+        const userid = req.params.userid;
         const getItem = await todoItemsModel.getBookmark(totalItem,page,userid);
         console.log(getItem.data);
         res.status(200).json(getItem);

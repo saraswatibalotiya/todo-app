@@ -1,7 +1,7 @@
 import "../App.css";
 import * as React from "react";
 import axios from "axios";
-import { useState, useEffect,Fragment } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import CustomDialog from "./CustomDialog";
 import { useNavigate } from "react-router-dom"; // Import useHistory from react-router-dom
@@ -19,11 +19,12 @@ import {
   FormControlLabel,
   FormLabel,
 } from "@mui/material";
-import Header from './Header';
+import Header from "./Header";
 import Footer from "./Footer";
 import TodoList from "./TodoList";
 import AddItems from "./AddItems";
 import SearchItem from "./SearchItem";
+import Alerts from "./Alerts";
 
 function HomePage() {
   //URL
@@ -57,9 +58,23 @@ function HomePage() {
   const [openSearch, setOpenSearch] = useState("");
 
   //Update
-  const [updateData,setUpdateData] = useState([]);
-  const [todoUpdate,setTodoUpdate] = useState(null); 
+  const [updateData, setUpdateData] = useState([]);
+  const [todoUpdate, setTodoUpdate] = useState(null);
 
+  //Alert
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertSeverity, setAlertSeverity] = useState("");
+
+  //Check where session useeffect as run or not
+  const [firstEffectCompleted, setFirstEffectCompleted] = useState(false);
+
+  //Close the alert
+  const handleClose = () => {
+    setShowAlert(false);
+    setAlertMessage("");
+    setAlertSeverity("");
+  };
 
   //useeffect for session
   useEffect(() => {
@@ -73,6 +88,7 @@ function HomePage() {
     setSessionData(parsedData[0]);
     setUserId(parsedData[0].id);
     setUsername(parsedData[0].username);
+    setFirstEffectCompleted(true);
   }, [sessionId]);
 
   //===== For Delete Operation ============
@@ -97,23 +113,33 @@ function HomePage() {
 
   //Change current page
   useEffect(() => {
+    console.log("Before setCurrPage:", currPage);
+
     setCurrPage(Math.min(currPage, totalPages));
-  }, [totalPages, openSearch]);
+    console.log("After setCurrPage:", currPage);
+
+  }, [totalPages]);
 
   //Create function to fetch all todo items from database - using useEffect
   useEffect(() => {
-    if (!openSearch || !openBookmark || sessionData != null || isLiked) {
+    if(firstEffectCompleted && selectStatus){
       getItemsList();
     }
-  }, [currPage, itemsPerPage, selectStatus, sessionData]);
+    
+  }, [currPage, itemsPerPage, selectStatus, sessionData,firstEffectCompleted]);
   //Here the array of dependencies must be empty which means that the
   // getItemsList function will run only once
 
   //Get Data of ToDo items from database
   const getItemsList = async () => {
+    console.log(currPage+"currPage")
+
     try {
       let res;
       const userid = sessionData.id;
+      if(selectStatus === "Bookmark"){
+        return;
+      }
       if (selectStatus === "All") {
         setOpenBookmark(false);
         res = await axios.get(
@@ -138,8 +164,18 @@ function HomePage() {
       }
       setListItems(res.data);
       setOpenSearch("");
-    } catch (err) {
-      console.log(err);
+    } catch (error) {
+      setOpenSearch("");
+      console.log("getItemsList");
+      console.log(error);
+      if (error.response && error.response.status === 500) {
+        // Handle 500 Internal Server Error
+        setAlertMessage(error.response.data.error);
+      } else {
+        setAlertMessage("An error occurred");
+      }
+      setAlertSeverity("error");
+      setShowAlert(true);
     }
   };
 
@@ -158,11 +194,22 @@ function HomePage() {
         setItemToDelete(null);
         handleCloseDialog();
         getItemsList();
-      } catch (err) {
-        console.log(err);
+        setAlertMessage(res.data.message);
+        setAlertSeverity("success");
+        setShowAlert(true);
+      } catch (error) {
+        if (error.response && error.response.status === 500) {
+          // Handle 500 Internal Server Error
+          setAlertMessage(error.response.data.error);
+        } else {
+          setAlertMessage("An error occurred");
+        }
+        setAlertSeverity("error");
+        setShowAlert(true);
       }
     }
   };
+
 
   //Get bookmark data from database
   const bookmarkData = async () => {
@@ -172,14 +219,13 @@ function HomePage() {
       }
       // e.preventDefault();
       const res = await axios.get(
-        `${url}/bookmarkItem?totalItem=${itemsPerPage}&page=${currPage}&userid=${sessionData.id}`
+        `${url}/bookmark/${sessionData.id}?totalItem=${itemsPerPage}&page=${currPage}`
       );
-      console.log(res.data.length);
-      if (res.data.length > 1) {
+      if (res.data.length >= 1) {
         const items = res.data.shift();
         const totCnt = Math.ceil(items.COUNT / itemsPerPage);
         setTotalPages(totCnt);
-        setListItems(res.data);
+        setListItems(res.data); 
       }
       //Calculate total pages based on the total number of items
       else {
@@ -206,7 +252,8 @@ function HomePage() {
       );
       console.log("Bookmark Response : " + res);
       console.log(openBookmark + "open");
-      if (openBookmark) {
+      if (openBookmark || currBookmark === 1) {
+        setOpenBookmark(true); // Set openBookmark to true when bookmark is added
         bookmarkData();
       } else {
         setIsLiked(false);
@@ -223,7 +270,6 @@ function HomePage() {
     if (e.target.value === "Bookmark") {
       setOpenBookmark(true);
       bookmarkData();
-      setSelectStatus(e.target.value);
       setOpenSearch("");
     }
     setSelectStatus(e.target.value);
@@ -231,134 +277,143 @@ function HomePage() {
 
   return (
     <>
-    <Header />
-    <div className="App">
-      <Grid container spacing={2} alignItems={"center"}>
-        <Grid item alignItems={"center"} md={6} sx={{ borderRight: 1 }}>
-          <h1>Todoer</h1>
-          <h4>What do you want to do today ?</h4>
-          {/* Add item in TODO */}
-          <AddItems
-            getItemsList={getItemsList}
-            setSelectStatus={setSelectStatus}
-            sessionData={sessionData}
-            updateData={updateData}
-            setUpdateData = {setUpdateData}
-            setTodoUpdate = {setTodoUpdate}
-          />
-        </Grid>
-        <Grid item alignItems={"center"} md={6}>
-        <SearchItem 
-                    sessionData={sessionData}
-                      setSelectStatus={setSelectStatus}
-                      setOpenSearch={setOpenSearch}
-                      itemsPerPage={itemsPerPage}
-                      currPage={currPage}
-                      setTotalPages={setTotalPages}
-                      setListItems={setListItems}>
-                      
-          </SearchItem>
-          <h2>Your Todo List</h2>
-          {/* Todo List */}
-          <FormControl>
-            <RadioGroup
-              row
-              aria-labelledby="demo-row-radio-buttons-group-label"
-              name="row-radio-buttons-group"
-              value={selectStatus}
-              onChange={(e) => {
-                checkStatus(e);
-              }}
-            >
-              <FormControlLabel value="All" control={<Radio />} label="All" />
-              <FormControlLabel
-                value="Completed"
-                control={<Radio />}
-                label="Completed"
-              />
-              <FormControlLabel
-                value="On-Hold"
-                control={<Radio />}
-                label="OnHold"
-              />
-              <FormControlLabel
-                value="In-Progress"
-                control={<Radio />}
-                label="Pending"
-              />
-              <FormControlLabel
-                value="Bookmark"
-                control={<Radio />}
-                label="Bookmark"
-              />
-            </RadioGroup>
-          </FormControl>
-
-          <TodoList
-            listItems={listItems}
-            deleteItem={deleteItem}
-            setIsLiked={setIsLiked}
-            handleLike={handleLike}
-            userId={userId}
-            setUpdateData = {setUpdateData}
-            setTodoUpdate = {setTodoUpdate}
-            todoUpdate = {todoUpdate}
-            getItemsList={getItemsList}
-          />
-          {/* Pagination */}
-          <FormControl fullWidth>
-            <Grid container spacing={2} alignItems={"center"}>
-              <Grid item alignItems={"center"} md={7}>
-                {/* Pagination */}
-                <Pagination
-                  defaultPage={1}
-                  count={totalPages}
-                  page={currPage}
-                  onChange={(event, value) => {
-                    setCurrPage(value);
-                  }}
-                  color="secondary"
-                  variant="outlined"
+      <Header />
+      <div className="App">
+        <Grid container spacing={2} alignItems={"center"}>
+          <Grid item alignItems={"center"} md={6} sx={{ borderRight: 1 }}>
+            <h1>Todoer</h1>
+            <h4>What do you want to do today ?</h4>
+            {/* Add item in TODO */}
+            <AddItems
+              getItemsList={getItemsList}
+              setSelectStatus={setSelectStatus}
+              sessionData={sessionData}
+              updateData={updateData}
+              setUpdateData={setUpdateData}
+              setTodoUpdate={setTodoUpdate}
+            />
+          </Grid>
+          <Grid item alignItems={"center"} md={6}>
+            <SearchItem
+              sessionData={sessionData}
+              setSelectStatus={setSelectStatus}
+              setOpenSearch={setOpenSearch}
+              itemsPerPage={itemsPerPage}
+              currPage={currPage}
+              setTotalPages={setTotalPages}
+              setListItems={setListItems}
+            ></SearchItem>
+            <h2>Your Todo List</h2>
+            {/* Todo List */}
+            <FormControl>
+              <RadioGroup
+                row
+                aria-labelledby="demo-row-radio-buttons-group-label"
+                name="row-radio-buttons-group"
+                value={selectStatus}
+                onChange={(e) => {
+                  checkStatus(e);
+                }}
+              >
+                <FormControlLabel value="All" control={<Radio />} label="All" />
+                <FormControlLabel
+                  value="Completed"
+                  control={<Radio />}
+                  label="Completed"
                 />
-              </Grid>
-              <Grid item md={2} alignItems={"center"}>
-                <Box sx={{ minWidth: 150 }}>
-                  <FormControl fullWidth>
-                    <InputLabel id="demo-simple-select-label">
-                      Records Per Page
-                    </InputLabel>
-                    <Select
-                      labelId="demo-simple-select-label"
-                      id="demo-simple-select"
-                      label="records"
-                      value={itemsPerPage}
-                      onChange={(event) => {
-                        setItemsPerPage(event.target.value);
-                      }}
-                    >
-                      <MenuItem value={3}>Three</MenuItem>
-                      <MenuItem value={5}>Five</MenuItem>
-                      <MenuItem value={8}>Eight</MenuItem>
-                      <MenuItem value={10}>Ten</MenuItem>
-                    </Select>
-                  </FormControl>
-                </Box>
-              </Grid>
-            </Grid>
-          </FormControl>
+                <FormControlLabel
+                  value="On-Hold"
+                  control={<Radio />}
+                  label="OnHold"
+                />
+                <FormControlLabel
+                  value="In-Progress"
+                  control={<Radio />}
+                  label="Pending"
+                />
+                <FormControlLabel
+                  value="Bookmark"
+                  control={<Radio />}
+                  label="Bookmark"
+                />
+              </RadioGroup>
+            </FormControl>
 
-          {/* Render your custom Dialog component for Delete Operation */}
-          <CustomDialog
-            open={openDialog}
-            handleClose={handleCloseDialog}
-            handleCancel={handleCancelDialog}
-            handleDelete={confirmDeleteItem}
-            itemName={delItem}
-          />
+            <TodoList
+              listItems={listItems}
+              deleteItem={deleteItem}
+              setIsLiked={setIsLiked}
+              handleLike={handleLike}
+              userId={userId}
+              setUpdateData={setUpdateData}
+              setTodoUpdate={setTodoUpdate}
+              todoUpdate={todoUpdate}
+              getItemsList={getItemsList}
+            />
+            {/* Pagination */}
+            <FormControl fullWidth>
+              <Grid container spacing={2} alignItems={"center"}>
+                <Grid item alignItems={"center"} md={7}>
+                  {/* Pagination */}
+                  <Pagination
+                    defaultPage={1}
+                    count={totalPages}
+                    page={currPage}
+                    onChange={(event, value) => {
+                      console.log("Pagination onChange - New value:", value);
+                      setCurrPage(value);
+                    }}
+                    color="secondary"
+                    variant="outlined"
+                  />
+                </Grid>
+                <Grid item md={2} alignItems={"center"}>
+                  <Box sx={{ minWidth: 150 }}>
+                    <FormControl fullWidth>
+                      <InputLabel id="demo-simple-select-label">
+                        Records Per Page
+                      </InputLabel>
+                      <Select
+                        labelId="demo-simple-select-label"
+                        id="demo-simple-select"
+                        label="records"
+                        value={itemsPerPage}
+                        onChange={(event) => {
+                          setItemsPerPage(event.target.value);
+                        }}
+                      >
+                        <MenuItem value={3}>Three</MenuItem>
+                        <MenuItem value={5}>Five</MenuItem>
+                        <MenuItem value={8}>Eight</MenuItem>
+                        <MenuItem value={10}>Ten</MenuItem>
+                      </Select>
+                    </FormControl>
+                  </Box>
+                </Grid>
+              </Grid>
+            </FormControl>
+
+            {/* Render your custom Dialog component for Delete Operation */}
+            <CustomDialog
+              open={openDialog}
+              handleClose={handleCloseDialog}
+              handleCancel={handleCancelDialog}
+              handleDelete={confirmDeleteItem}
+              itemName={delItem}
+            />
+          </Grid>
         </Grid>
-      </Grid>
-    </div>
-    <Footer/>
+        {showAlert && (
+          <Alerts
+            message={alertMessage}
+            severitys={alertSeverity}
+            onClose={() => {
+              handleClose();
+            }}
+          />
+        )}
+      </div>
+      <Footer />
     </>
   );
 }

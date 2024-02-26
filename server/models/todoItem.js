@@ -42,7 +42,6 @@ const addToDoItem = async (item) => {
                 bookmark BOOLEAN,
                 FOREIGN KEY (user_id) REFERENCES user(id),
                 FOREIGN KEY (category_id) REFERENCES category(id)
-
             );
             `
         );
@@ -144,6 +143,7 @@ const updateBookmark = async (id,bookmark)=>{
 //Get all bookmarks data
 const getBookmark = async(totalItem,page , userid) => {
     try {
+        console.log("isme aaya")
         const offset = (page - 1) * totalItem; // Calculate the offset based on the page
         const value = 1;
         const sql = `SELECT * FROM TodoItem WHERE bookmark = ? AND user_id = ? LIMIT ${totalItem} OFFSET ${offset}`;
@@ -152,6 +152,7 @@ const getBookmark = async(totalItem,page , userid) => {
         const [rows2] = await conn.promise().query(`SELECT COUNT(*) AS COUNT FROM TodoItem WHERE bookmark = ? AND user_id = ? `,[value,userid]);
         console.log(rows+"from bookmark")
         const result = [rows2[0], ...rows];
+        // console.log(rows);
         return result;
     }
     catch (error) {

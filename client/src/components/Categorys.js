@@ -13,12 +13,23 @@ import {
   Select,
   MenuItem,
 } from "@mui/material";
+import Alerts from "./Alerts";
 import { useNavigate } from "react-router-dom"; // Import useHistory from react-router-dom
 import Header from "./Header";
 const Categorys = () => {
   //URL
   const url = "http://localhost:5500/api/category";
 
+  //Alert
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertSeverity, setAlertSeverity] = useState("");
+  //For Alert
+  const handleClose = () => {
+    setShowAlert(false);
+    setAlertMessage("");
+    setAlertSeverity("");
+  };
   // Change route
   const { sessionId } = useParams();
   const navigate = useNavigate();
@@ -57,8 +68,15 @@ const Categorys = () => {
         setTotalPages(totCnt);
       }
       setListCategory(res.data);
-    } catch (err) {
-      console.log(err);
+    } catch (error) {
+      if (error.response && error.response.status === 500) {
+        // Handle 500 Internal Server Error
+        setAlertMessage(error.response.data.error);
+      } else {
+        setAlertMessage("An error occurred");
+      }
+      setAlertSeverity("error");
+      setShowAlert(true);
     }
   };
 
@@ -97,8 +115,19 @@ const Categorys = () => {
         setItemToDelete(null);
         handleCloseDialog();
         getCategoryList();
-      } catch (err) {
-        console.log(err);
+        setAlertMessage(res.data.messsage);
+      } catch (error) {
+        if (error.response && error.response.status === 500) {
+          // Handle 500 Internal Server Error
+          setAlertMessage(error.response.data.error);
+        } else if (error.response && error.response.status === 404) {
+          // Handle 500 Internal Server Error
+          setAlertMessage(error.response.data.error);
+        } else {
+          setAlertMessage("An error occurred");
+        }
+        setAlertSeverity("error");
+        setShowAlert(true);
       }
     }
   };
@@ -225,6 +254,15 @@ const Categorys = () => {
           itemName={delItem}
           actionName={"Category"}
         />
+        {showAlert && (
+          <Alerts
+            message={alertMessage}
+            severitys={alertSeverity}
+            onClose={() => {
+              handleClose();
+            }}
+          />
+        )}
       </div>
     </>
   );

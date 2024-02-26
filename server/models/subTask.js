@@ -37,7 +37,8 @@ const createSubTask = async (todo) => {
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                 FOREIGN KEY (user_id) REFERENCES user(id),
-                FOREIGN KEY (todo_id) REFERENCES TodoItem(id)
+                FOREIGN KEY (todo_id) REFERENCES TodoItem(id),
+                ON DELETE CASCADE
             );
             `
     );

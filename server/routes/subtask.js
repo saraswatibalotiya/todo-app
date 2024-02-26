@@ -11,12 +11,11 @@ router.post('/',async(req,res) => {
             user_id,todo_id,title
         });
         console.log(newSubTask + 'new subtask');
-        res.status(200).json(newSubTask);
+        res.status(201).json(newSubTask);
     }
     catch(err){
         console.log(err);
         res.status(500).json({ error: 'Internal Server Error' });
-        // res.json(err);
     }
 })
 

@@ -10,8 +10,12 @@ router.post('/',async(req,res) => {
         const newUser = await userModel.createUser({
             username,email,password
         });
-        console.log(newUser + 'new todo');
-        res.status(200).json(newUser);
+        if(newUser === 'Username exist'){
+            res.status(409).json({error:"Username already exist"})
+        }
+        else{
+            res.status(201).json({message:"Registeration done successfully!"});//new user created
+        }
     }
     catch(err){
         console.log(err);
@@ -25,12 +29,15 @@ router.get('/',async(req,res) => {
     try{
         const username = req.query.username;
         const user = await userModel.getUser(username);
-        res.status(200).json(user);
+        if (user) {
+            res.status(200).json(user);
+        } else {
+            res.status(404).json({ error: 'Not Found' }); // Added 404 Not Found
+        }
     }
     catch(err){
         console.log(err);
         res.status(500).json({ error: 'Internal Server Error' });
-        // res.json(err);
     }
 })
 

@@ -67,9 +67,6 @@ const getUser = async(username) => {
         if(rows.length>0){
             return rows;
         }
-        else{
-            return 'No such username';
-        }
     }
     catch (error) {
         console.log(error);

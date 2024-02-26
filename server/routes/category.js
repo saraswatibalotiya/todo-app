@@ -10,7 +10,13 @@ router.post('/',async(req,res) => {
             category_name,display_name
         });
         console.log(newCategory + 'new category');
-        res.status(200).json({message : "Category created Successfully!"});
+        if(newCategory === 'Category exist'){
+            res.status(409).json({error : "Category exist"});
+            return;
+        }else{
+            res.status(201).json({message : "Category created Successfully!"});
+            return;
+        }
     }
     catch(err){
         console.log(err);
@@ -70,19 +76,15 @@ router.delete('/',async(req,res)=>{
         const id = req.body.id;
         console.log(id);
         const deleteItem = await categoryModel.deleteCategory(id);
-        console.log(deleteItem.affectedRows);
-        console.log("iske upar");
-
         if(deleteItem.affectedRows > 0){
-            res.status(200).json({message : "SubTask deleted successfully!"});
+            res.status(200).json({message : "Category deleted successfully!"});
         }
         else{
-            res.status(404).json({message :deleteItem} );
+            res.status(404).json({error :"No Such Category Exist"} );
         }
     }
     catch (err){
-        console.log(err);
-        res.json(err);
+        res.status(500).json({ error: 'Internal Server Error' });
     }
 })
 

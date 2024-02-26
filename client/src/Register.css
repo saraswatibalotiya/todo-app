@@ -9,6 +9,7 @@
   margin: 15px auto;
   padding: 10px;
   border-radius: 8px;
+  /* text-align: center; */
 }
 
 .Register h1 {
@@ -23,6 +24,9 @@
   margin-bottom: 12px;
 }
 
+.registerText {
+  text-align: center;
+}
 .Register .form img {
   cursor: pointer;
 }

@@ -11,7 +11,6 @@ const SearchItem = ({
   setOpenSearch,
   openSearch,
 }) => {
-  console.log(sessionData);
   // url
   const url = "http://localhost:5500/api/item";
   //Alert

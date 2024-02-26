@@ -84,9 +84,15 @@ const SubTask = ({
         setTitleText("");
         getSubtask();
       }
-    } catch (err) {
-      console.log(err);
-      throw err;
+    } catch (error) {
+      if (error.response && error.response.status === 500) {
+        // Handle 500 Internal Server Error
+        setAlertMessage(error.response.data.error);
+      } else {
+        setAlertMessage("An error occurred");
+      }
+      setAlertSeverity("error");
+      setShowAlert(true);    
     }
   };
 
@@ -99,7 +105,14 @@ const SubTask = ({
       );
       setSubtasks(res.data); // Assuming that the response contains the subtasks data
     } catch (error) {
-      console.error("Error fetching subtasks:", error);
+      if (error.response && error.response.status === 500) {
+        // Handle 500 Internal Server Error
+        setAlertMessage(error.response.data.error);
+      } else {
+        setAlertMessage("An error occurred");
+      }
+      setAlertSeverity("error");
+      setShowAlert(true);    
     }
   };
 
@@ -121,20 +134,31 @@ const SubTask = ({
 
   //Update Subtask
   const updateSubtask = async (item, e) => {
-    e.preventDefault();
-    const res = await axios.put(`${url}`, {
-      id: item.id,
-      title: item.title,
-      status: item.status,
-      todo_id: item.todo_id,
-    });
-    setTitleText("");
-    setAlertMessage(res.data.message);
-    setAlertSeverity("success");
-    setShowAlert(true);
-    setUpdateTask([]);
-    getSubtask();
-    setTodoUpdate("subtask");
+    try{
+      e.preventDefault();
+      const res = await axios.put(`${url}`, {
+        id: item.id,
+        title: item.title,
+        status: item.status,
+        todo_id: item.todo_id,
+      });
+      setTitleText("");
+      setAlertMessage(res.data.message);
+      setAlertSeverity("success");
+      setShowAlert(true);
+      setUpdateTask([]);
+      getSubtask();
+      setTodoUpdate("subtask");  
+    }catch(error){
+      if (error.response && error.response.status === 500) {
+        // Handle 500 Internal Server Error
+        setAlertMessage(error.response.data.error);
+      } else {
+        setAlertMessage("An error occurred");
+      }
+      setAlertSeverity("error");
+      setShowAlert(true);    
+    }
   };
   useEffect(() => {
     getSubtask();

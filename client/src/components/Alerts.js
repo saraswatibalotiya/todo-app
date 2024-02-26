@@ -5,9 +5,6 @@ import Alert from '@mui/material/Alert';
 
 const Alerts = ({ message, severitys ,onClose}) => {
     const [open, setOpen] = useState(true);
-    console.log(message)
-    console.log(severitys)
-
     const handleClose = (event, reason) => {
         if (reason === 'clickaway') {
             return;

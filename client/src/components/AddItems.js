@@ -17,7 +17,7 @@ const AddItems = ({
   sessionData,
   updateData,
   setUpdateData,
-  setTodoUpdate
+  setTodoUpdate,
 }) => {
   //url
   const url = "http://localhost:5500/api/item";
@@ -58,10 +58,16 @@ const AddItems = ({
       setAlertSeverity("success");
       setShowAlert(true);
       getItemsList();
-      setTodoUpdate('todo');
-    } catch (err) {
-      console.log(err);
-      throw err;
+      setTodoUpdate("todo");
+    } catch (error) {
+      if (error.response && error.response.status === 500) {
+        // Handle 500 Internal Server Error
+        setAlertMessage(error.response.data.error);
+      } else {
+        setAlertMessage("An error occurred");
+      }
+      setAlertSeverity("error");
+      setShowAlert(true);    
     }
   };
   //add new todo item to database
@@ -87,25 +93,32 @@ const AddItems = ({
         });
         getItemsList();
         setSelectStatus("All");
-        e.target.title.value = "";
-        e.target.descp.value = "";
-        setCategoryText("");
         setAlertMessage(res.data.message);
         setAlertSeverity("success");
         setShowAlert(true);
-        return;
       }
-    } catch (err) {
-      console.log(err);
-      throw err;
+      e.target.title.value = "";
+      e.target.descp.value = "";
+      setCategoryText("");
+    } catch (error) {
+      if (error.response && error.response.status === 500) {
+        // Handle 500 Internal Server Error
+        setAlertMessage(error.response.data.error);
+      } else {
+        setAlertMessage("An error occurred");
+      }
+      setAlertSeverity("error");
+      setShowAlert(true);
     }
+    e.target.title.value = "";
+    e.target.descp.value = "";
+    setCategoryText("");
   };
 
   //Get Category
   const getCategory = async () => {
     const res = await axios.get(`${catUrl}`);
     setCategoryList(res.data);
-    console.log(res);
   };
 
   useEffect(() => {
@@ -191,9 +204,7 @@ const AddItems = ({
               </Select>
             </FormControl>
           </Box>
-          {
-              updateData.length!== 0
-              ?
+          {updateData.length !== 0 ? (
             <Box sx={{ minWidth: 150 }} style={{ width: "42ch" }}>
               <FormControl fullWidth>
                 <InputLabel
@@ -208,23 +219,22 @@ const AddItems = ({
                   label="records"
                   value={updateData.status}
                   onChange={(event) => {
-                      setUpdateData({
-                        ...updateData,
-                        status: event.target.value,
-                      });
-                   
+                    setUpdateData({
+                      ...updateData,
+                      status: event.target.value,
+                    });
                   }}
                   style={{ width: "42ch" }}
                 >
-                    <MenuItem value="In-Progress">In-Progress</MenuItem>
-                    <MenuItem value="Completed">Completed</MenuItem>
-                    <MenuItem value="On-Hold">On-Hold</MenuItem>
+                  <MenuItem value="In-Progress">In-Progress</MenuItem>
+                  <MenuItem value="Completed">Completed</MenuItem>
+                  <MenuItem value="On-Hold">On-Hold</MenuItem>
                 </Select>
               </FormControl>
             </Box>
-            :
+          ) : (
             " "
-          }
+          )}
 
           <Button type="submit" variant="contained" color="secondary">
             Submit

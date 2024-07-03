@@ -5,34 +5,34 @@ const todoItemsModel = require('../models/todoItem');
 // Add Item in ToDo table
 router.post('/',async(req,res) => {
     try{
+        console.log("coming in this royute")
         const {title,descp,userid,category_id} = req.body;
 
         const newTodo = await todoItemsModel.addToDoItem({
             title,descp,userid,category_id
         });
-        // console.log(newTodo + 'new todo');
+        console.log(newTodo + 'new todo');
         res.status(201).json({message : "ToDo Item added Successfully"});
     }
     catch(err){
-        console.log(err);
+        console.log(err,"in this post");
         res.status(500).json({ error: 'Internal Server Error' });
-        // res.json(err);
     }
 })
 
 // Find item from ToDo table according to status
 router.get('/status',async(req,res)=>{
     try{
-        console.log("Rotuer called");
+        // console.log("Rotuer called");
         const totalItem = req.query.totalItem;
-        const page = req.query.page;
+        // const page = req.query.page != 'NaN' ? req.query.page : 1;
+        const page = req.query.page ;
         const itemStatus = req.query.status;
         const userid = req.query.userid;
         const getItem = await todoItemsModel.findTodoItemStatus(itemStatus,totalItem,page,userid);
         res.status(200).json(getItem);
     }
     catch(err){
-        console.log(err);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 })
@@ -49,7 +49,6 @@ router.get('/', async (req,res)=>{
         res.status(200).json(allItems);
     }
     catch(error){
-        console.log(error);
         res.status(500).json({ error: 'Internal Server Error' });
         // res.json(err);
     }
@@ -63,6 +62,21 @@ router.put('/:id',async(req,res)=>{
         const updatedFields = req.body;
     
         const updateItem = await todoItemsModel.updateTodoItem(itemId,updatedFields);
+        res.status(200).json({message:"ToDo Item updated Successfully!"});
+    }
+    catch(err){
+        console.log(err);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+})
+
+// Update Status of ToDo table
+router.put('/',async(req,res)=>{
+    try{
+        const itemId = req.body.id;
+        const status = req.body.status;
+        console.log(itemId,status,"=== in routes ====")
+        const updateItem = await todoItemsModel.updateStatus(itemId,status);
         res.status(200).json({message:"ToDo Item updated Successfully!"});
     }
     catch(err){
@@ -102,7 +116,6 @@ router.get('/:title',async(req,res)=>{
     }
 })
 
-
 //Update Bookmark in ToDo Table
 router.put('/bookmark/:id',async(req,res)=>{
     try{
@@ -113,7 +126,7 @@ router.put('/bookmark/:id',async(req,res)=>{
     }
     catch(err){
         console.log(err);
-        res.json(err);
+        res.status(500).json({ error: 'Internal Server Error' });
     }
 })
 
@@ -129,7 +142,7 @@ router.get('/bookmark/:userid',async(req,res)=>{
     }
     catch(err){
         console.log(err);
-        res.json(err);
+        res.status(500).json({ error: 'Internal Server Error' });
     }
 })
 

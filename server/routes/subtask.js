@@ -41,11 +41,11 @@ router.delete('/',async(req,res)=>{
         console.log(id);
         const deleteItem = await subtaskModel.deleteSubTask(id);
         console.log(deleteItem);
-        res.status(200).json("SubTask deleted successfully!");
+        res.status(200).json({message:"SubTask deleted successfully!"});
     }
     catch (err){
         console.log(err);
-        res.json(err);
+        res.status(500).json({ error: 'Internal Server Error' });
     }
 })
 

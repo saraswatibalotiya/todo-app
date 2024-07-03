@@ -6,20 +6,23 @@ const categoryModel = require('../models/category')
 router.post('/',async(req,res) => {
     try{
         const {category_name,display_name} = req.body;
+        if (!category_name || !display_name) {
+            res.status(400).json({ error: "Missing required fields" });
+            return;
+        }
         const newCategory = await categoryModel.addCategory({
             category_name,display_name
         });
-        console.log(newCategory + 'new category');
+        console.log(newCategory)
         if(newCategory === 'Category exist'){
             res.status(409).json({error : "Category exist"});
             return;
         }else{
-            res.status(201).json({message : "Category created Successfully!"});
+            res.status(201).json({message : "Category created Successfully!", data: newCategory});
             return;
         }
     }
     catch(err){
-        console.log(err);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 })
@@ -39,7 +42,6 @@ router.put('/',async(req,res)=>{
         res.status(200).json({message : "Category updated Successfully!"});
     }
     catch(err){
-        console.log(err);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 })
@@ -53,7 +55,6 @@ router.get('/',async(req,res) => {
         res.status(200).json(category);
     }
     catch(err){
-        console.log(err);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 })
@@ -65,7 +66,6 @@ router.get('/all',async(req,res)=>{
         res.status(200).json(category);
     }
     catch(err){
-        console.log(err);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 })

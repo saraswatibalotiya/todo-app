@@ -10,15 +10,18 @@ router.post('/',async(req,res) => {
         const newUser = await userModel.createUser({
             username,email,password
         });
+        console.log(newUser,"new User == ")
+
         if(newUser === 'Username exist'){
             res.status(409).json({error:"Username already exist"})
         }
         else{
-            res.status(201).json({message:"Registeration done successfully!"});//new user created
+            console.log(newUser,"new User == ")
+            res.status(201).json({message:"Registeration done successfully!", data: newUser});//new user created
+            return newUser
         }
     }
     catch(err){
-        console.log(err);
         res.status(500).json({ error: 'Internal Server Error' });
         // res.json(err);
     }
@@ -36,7 +39,6 @@ router.get('/',async(req,res) => {
         }
     }
     catch(err){
-        console.log(err);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 })

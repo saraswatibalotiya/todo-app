@@ -3,12 +3,9 @@ const { query } = require('express');
 const mysql = require('mysql2');
 
 // Create a MySQL connection
-const conn = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: 'Saras@17',
-    database: 'toDoApp',
-})
+const getDbConfig  = require('../dbConfig'); // Import the database configuration function
+const conn = mysql.createConnection(getDbConfig()); // Use the function to get the configuration
+
 
 // Add User in User table
 const createUser = async (user) => {
@@ -46,8 +43,8 @@ const createUser = async (user) => {
             username: user.username,
             email: user.email,
         };
+        console.log(addedItem,"from user profile")
 
-        console.log(addedItem);
         return addedItem;
     }
     catch (error) {

@@ -3,12 +3,8 @@ const { query } = require('express');
 const mysql = require('mysql2');
 
 // Create a MySQL connection
-const conn = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: 'Saras@17',
-    database: 'toDoApp',
-})
+const getDbConfig  = require('../dbConfig'); // Import the database configuration function
+const conn = mysql.createConnection(getDbConfig()); // Use the function to get the configuration
 
 // Get Item from ToDo table
 const getAllTodoItems = async (totalItem, page , userid) => {
@@ -42,6 +38,7 @@ const addToDoItem = async (item) => {
                 bookmark BOOLEAN,
                 FOREIGN KEY (user_id) REFERENCES user(id),
                 FOREIGN KEY (category_id) REFERENCES category(id)
+                ON DELETE CASCADE
             );
             `
         );
@@ -62,10 +59,11 @@ const addToDoItem = async (item) => {
             status: 'In-Progress'
         };
 
-        console.log(addedItem);
+        console.log(addedItem,"item addedwsrhgir");
         return addedItem;
     }
     catch (error) {
+        console.log(item,"itesm")
         console.log(error);
         throw error;
     }
@@ -91,6 +89,20 @@ const updateTodoItem = async (itemId, updatedFields) => {
         throw error;
     }
 };
+
+const updateStatus = async (itemId,status) => {
+    try {
+        console.log(itemId,status)
+        const [result] = await conn.promise().query(
+            'UPDATE TodoItem SET status = ?  WHERE id = ?',
+            [status, itemId]
+        );
+        return result;
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+}
 
 // Delete Item of ToDo table
 const deleteTodoItem = async (id) => {
@@ -168,6 +180,7 @@ const findTodoItemStatus = async (status, totalItem, page ,userid) => {
         const [rows] = await conn.promise().query(sql, [status,userid]);
         const [rows2] = await conn.promise().query(`SELECT COUNT(*) AS COUNT FROM TodoItem WHERE status = ? AND user_id = ?`, [status,userid]);
         const result = [rows2[0], ...rows];
+        console.log(result,"from findtodoitemstatus")
         return result;
     }
     catch (error) {
@@ -177,4 +190,4 @@ const findTodoItemStatus = async (status, totalItem, page ,userid) => {
 }
 
 // Export a function to add a todo item to the MySQL database
-module.exports = { getAllTodoItems, addToDoItem, updateTodoItem, findTodoItem, deleteTodoItem, findTodoItemStatus ,getBookmark,updateBookmark}
+module.exports = { getAllTodoItems, addToDoItem, updateTodoItem, findTodoItem, deleteTodoItem, findTodoItemStatus ,getBookmark,updateBookmark,updateStatus}

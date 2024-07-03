@@ -1,15 +1,9 @@
 // Import mysql to create new schema
 const { query } = require('express');
 const mysql = require('mysql2');
-
 // Create a MySQL connection
-const conn = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: 'Saras@17',
-    database: 'toDoApp',
-})
-
+const getDbConfig  = require('../dbConfig'); // Import the database configuration function
+const conn = mysql.createConnection(getDbConfig()); // Use the function to get the configuration
 // Add Category in Category table
 const addCategory = async (category) => {
     try {
@@ -24,7 +18,7 @@ const addCategory = async (category) => {
         const [check] = await conn.promise().query(
             'SELECT * FROM category WHERE category_name = ?',[category.category_name]
         );
-        console.log(check.length);
+        // console.log(check.length);
         if(check.length > 0){
             return 'Category exist'
         }
@@ -41,12 +35,10 @@ const addCategory = async (category) => {
             category_name:category.category_name,
             display_name: category.display_name,
         };
-
-        console.log(addCategory);
         return addCategory;
     }
     catch (error) {
-        console.log(error);
+        console.log(error,"add error ");
         throw error;
     }
 }
@@ -58,7 +50,6 @@ const getCategoryById = async(totalItem, page ,category_id) => {
         const sql = `SELECT * FROM category where id = ? LIMIT ${totalItem} OFFSET ${offset} `;
         const [rows] = await conn.promise().query(sql,[category_id]);
         const [rows2] = await conn.promise().query(`SELECT COUNT(*) AS COUNT FROM category where id = ?`,[category_id]);
-        console.log(rows2[0], "total count");
         const result = [rows2[0], ...rows];
         return result;
 
@@ -82,13 +73,11 @@ const getCategoryById = async(totalItem, page ,category_id) => {
 // Get Category in Category Table
 const getCategory= async(totalItem, page) => {
     try {
-        console.log(totalItem,page);
         const offset = (page - 1) * totalItem; // Calculate the offset based on the page
         const sql = `SELECT * FROM category  LIMIT ${totalItem} OFFSET ${offset} `;
         const [rows] = await conn.promise().query(sql);
         const [rows2] = await conn.promise().query(`SELECT COUNT(*) AS COUNT FROM category`);
         const result = [rows2[0], ...rows];
-        console.log(result);
         return result;
         // const [rows] = await conn.promise().query('SELECT * FROM category');
         // return rows;
@@ -134,7 +123,6 @@ const updateCategory = async (updatedFields) => {
             'UPDATE category SET category_name = ?, display_name = ? WHERE id = ?',
             [updatedFields.category_name, updatedFields.display_name , updatedFields.cat_id]
         );
-        console.log(result);
 
         return result;
     } catch (error) {

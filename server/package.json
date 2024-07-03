@@ -4,7 +4,18 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon index.js"
+    "start": "nodemon index.js",
+    "test": "jest",
+    "test:watch": "npm run test -- --watch",
+    "test:category": "jest category.test.js",
+    "test:user": "jest user.test.js",
+    "test:todoItem": "jest todoItem.test.js",
+    "test:subtask": "jest subtask.test.js",
+    "test:coverage:category": "jest category.test.js --coverage",
+    "test:coverage:user": "jest user.test.js --coverage",
+    "test:coverage:todoItem": "jest todoItem.test.js --coverage",
+    "test:coverage:subtask": "jest subtask.test.js --coverage",
+    "test:runAll": "npm run test:coverage:category && npm run test:coverage:user && npm run test:coverage:todoItem && npm run test:coverage:subtask"
   },
   "keywords": [],
   "author": "",

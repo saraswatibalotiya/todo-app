@@ -67,9 +67,11 @@ const Header = () => {
   useEffect(() => {
     if (
       location.pathname.startsWith("/todo/") ||
-      location.pathname.startsWith("/categorys/")
+      location.pathname.startsWith("/categorys/") ||
+      location.pathname.startsWith("/kanban/")
+
     ) {
-      pages = ["Category"];
+      pages = ["Category","Kanban-Board"];
       settings = ["Logout"];
 
       setUser(true);
@@ -149,11 +151,20 @@ const Header = () => {
             </Box>
             <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
             {pages.map((page) => (
+              // "Category","Kanban-Board"
               <Button
                 key={page}
                 onClick={handleCloseNavMenu}
-                sx={{ my: 2, color: "white", display: "block" }}
-                href={`/categorys/${sessionId}`}
+                sx={{ my: 2, color: "white", display: "block" ,'&:hover': {
+                  color: 'yellow', // Change the color on hover
+                },
+                '&:active': {
+                  color: 'red', // Change the color when clicked
+                },}}
+                href={
+                  page === 'Category'
+                  ? `/categorys/${sessionId}`
+                  : `/kanban/${sessionId}`}
               >
                 {page}
               </Button>
